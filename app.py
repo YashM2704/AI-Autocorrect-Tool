@@ -1,18 +1,15 @@
-from pathlib import Path
-from preprocessing import preprocess_text
-from bert_autocorrect import bert_autocorrect
-import sys
-
-sys.path.append(str(Path(__file__).resolve().parent.parent))
-from textblob_autocorrect import correct_spelling
-text = input("Enter masked sentence: ")
-results = bert_autocorrect(text)
-corrected = correct_spelling(text)
-processed = preprocess_text(text)
-print("\nCorrected Text:")
-print(corrected)
-print("\nProcessed Text:")
-print(processed)
-print("\nPredictions:\n")
-for prediction in results:
-    print(prediction)
+from hybrid_autocorrect import hybrid_autocorrect
+text = input("Enter sentence: ")
+result = hybrid_autocorrect(text)
+print("\nFinal Results\n")
+print("Original Text:")
+print(result["original_text"])
+print("\nTextBlob Corrected:")
+print(result["textblob_output"])
+print("\nBERT Suggestions:")
+for suggestion in result["bert_suggestions"]:
+    print("\nMasked Sentence:")
+    print(suggestion["masked_sentence"])
+    print("\nPredictions:")
+    for prediction in suggestion["predictions"]:
+        print(prediction)
