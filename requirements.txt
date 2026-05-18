@@ -1,5 +1,15 @@
+streamlit
 textblob
 nltk
 transformers
 torch
-streamlit
+torchvision
+sentencepiece
+language-tool-python
+sentence-transformers
+rapidfuzz
+wordfreq
+Metaphone
+scikit-learn
+numpy
+pandas
