@@ -203,22 +203,11 @@ Contributions are welcome! Feel free to:
 5. Open a Pull Request
 
 ---
-
-## 📄 License
-
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
-
----
-
 ## 👤 Author
 
 **YASH MAHAJAN**
 
 - GitHub: [@YashM2704](https://github.com/YashM2704)
-- LinkedIn: [Your LinkedIn Profile](https://linkedin.com)
 
 ---
 
-<p align="center">Built with ❤️ using Python, NLTK, TextBlob, BERT & Streamlit</p>
-
-<p align="center">⭐ Star this repo if you found it useful!</p>
