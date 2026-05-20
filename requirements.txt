@@ -13,3 +13,4 @@ Metaphone
 scikit-learn
 numpy
 pandas
+Levenshtein

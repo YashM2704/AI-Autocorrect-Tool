@@ -1,5 +1,6 @@
 import streamlit as st
 from hybrid_autocorrect import hybrid_autocorrect
+from t5_autocorrect import t5_correct_text
 
 
 # ---------------------------------------------------
@@ -88,25 +89,37 @@ with st.sidebar:
 
     st.divider()
 
-    show_predictions = st.checkbox(
-        "Show BERT Predictions",
-        value=True
-    )
-
-    show_preprocessing = st.checkbox(
-        "Show NLP Processing Steps",
-        value=False
-    )
-
-    show_confidence = st.checkbox(
-        "Show Confidence Analysis",
-        value=True
+    model_choice = st.selectbox(
+        "Select AI Model",
+        ["Hybrid (TextBlob + BERT)", "Advanced T5 (Grammar & Context)"]
     )
 
     st.divider()
 
+    if model_choice == "Hybrid (TextBlob + BERT)":
+        show_predictions = st.checkbox(
+            "Show BERT Predictions",
+            value=True
+        )
+
+        show_preprocessing = st.checkbox(
+            "Show NLP Processing Steps",
+            value=False
+        )
+
+        show_confidence = st.checkbox(
+            "Show Confidence Analysis",
+            value=True
+        )
+    else:
+        show_predictions = False
+        show_preprocessing = False
+        show_confidence = False
+
+    st.divider()
+
     st.caption(
-        "Built with ❤️ using Streamlit + BERT + TextBlob"
+        "Built with ❤️ using Streamlit + BERT + T5 + TextBlob"
     )
 
 
@@ -123,7 +136,7 @@ st.markdown(
     '''
     <p class="subtitle">
     Context-Aware Spelling & Grammar Correction 
-    using TextBlob + BERT
+    using TextBlob + BERT + T5
     </p>
     ''',
     unsafe_allow_html=True
@@ -174,9 +187,10 @@ with col2:
                 "Applying AI magic..."
             ):
 
-                result = hybrid_autocorrect(
-                    user_input
-                )
+                if model_choice == "Advanced T5 (Grammar & Context)":
+                    result = t5_correct_text(user_input)
+                else:
+                    result = hybrid_autocorrect(user_input)
 
             st.success(
                 "✅ Correction Complete!"
@@ -200,7 +214,7 @@ with col2:
                 st.markdown(
                     f"""
                     <div class="result-card original">
-                        {result['original_text']}
+                        {user_input}
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -212,11 +226,13 @@ with col2:
                     "### ✅ Corrected Text"
                 )
 
+                corrected_text_to_show = result['best_correction'] if model_choice == "Advanced T5 (Grammar & Context)" else result['textblob_output']
+
                 st.markdown(
                     f"""
                     <div class="result-card corrected">
                         <strong>
-                        {result['textblob_output']}
+                        {corrected_text_to_show}
                         </strong>
                     </div>
                     """,
@@ -225,11 +241,34 @@ with col2:
 
 
             # ---------------------------------------------------
+            # T5 METRICS
+            # ---------------------------------------------------
+            if model_choice == "Advanced T5 (Grammar & Context)":
+                st.divider()
+                st.subheader("📊 T5 Model Evaluation")
+
+                best_cand = result['all_candidates'][0]
+
+                m1, m2, m3, m4, m5 = st.columns(5)
+                m1.metric("Final Score", best_cand['final_score'])
+                m2.metric("Similarity", best_cand['similarity'])
+                m3.metric("Grammar Score", best_cand['grammar_score'])
+                m4.metric("Correction Strength", best_cand['correction_strength'])
+                m5.metric("Penalty", best_cand['penalty'])
+
+                if len(result['all_candidates']) > 1:
+                    st.markdown("### 🔍 Alternative Suggestions")
+                    for alt in result['all_candidates'][1:]:
+                        st.info(f"**{alt['text']}** (Score: {alt['final_score']})")
+
+
+            # ---------------------------------------------------
             # CONFIDENCE ANALYSIS
             # ---------------------------------------------------
 
             if (
-                show_confidence
+                model_choice == "Hybrid (TextBlob + BERT)"
+                and show_confidence
                 and result.get("confidence_scores")
             ):
 
@@ -291,7 +330,10 @@ with col2:
             # NLP PIPELINE
             # ---------------------------------------------------
 
-            if show_preprocessing:
+            if (
+                model_choice == "Hybrid (TextBlob + BERT)"
+                and show_preprocessing
+            ):
 
                 st.divider()
 
@@ -328,7 +370,8 @@ with col2:
             # ---------------------------------------------------
 
             if (
-                show_predictions
+                model_choice == "Hybrid (TextBlob + BERT)"
+                and show_predictions
                 and result.get(
                     "bert_suggestions"
                 )
